@@ -8,11 +8,11 @@ ms.date: 02/08/2018
 ms.topic: quickstart
 ms.devlang: go
 manager: routlaw
-ms.openlocfilehash: e530d944deca40e9e6c29b6c2768e2367822714e
-ms.sourcegitcommit: aaa8c37880332625f858a38f5918e6cf581bf48d
+ms.openlocfilehash: ae460dbf21b13c40f3d564274f8b790afe005aae
+ms.sourcegitcommit: af3473779cd7c2978f290fbdc51ee15eb1130840
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 02/15/2018
+ms.lasthandoff: 03/15/2018
 ---
 # <a name="quickstart-deploy-an-azure-virtual-machine-from-a-template-with-the-azure-sdk-for-go"></a>Início rápido: implementar uma máquina virtual do Azure a partir de um modelo com o Azure SDK for Go
 
@@ -32,7 +32,7 @@ Se utilizar uma instalação local da CLI do Azure, este início rápido necessi
 
 ## <a name="create-a-service-principal"></a>Criar um principal de serviço
 
-Para iniciar sessão com uma aplicação de forma não interativa, precisa de um principal de serviço. Os principais de serviço fazem parte da Autenticação Baseada em Funções (RBAC) que cria uma identidade de utilizador exclusiva. Para criar um novo principal de serviço com a CLI, execute o seguinte comando:
+Para iniciar sessão com uma aplicação de forma não interativa, precisa de um principal de serviço. Os principais de serviço fazem parte do controlo de acesso baseado em funções (RBAC) que cria uma identidade de utilizador exclusiva. Para criar um novo principal de serviço com a CLI, execute o seguinte comando:
 
 ```azurecli-interactive
 az ad sp create-for-rbac --name az-go-vm-quickstart
@@ -40,7 +40,7 @@ az ad sp create-for-rbac --name az-go-vm-quickstart
 
 __Certifique-se__ de que regista os valores `appId`, `password`, e `tenant` no resultado. Estes valores são utilizados pela aplicação para autenticar com o Azure.
 
-Para mais informações sobre como criar e gerir Principais de Serviço com a CLI 2.0 do Azure, consulte [Criar um principal de serviço do Azure com a CLI 2.0 do Azure](/cli/azure/create-an-azure-service-principal-azure-cli).
+Para mais informações sobre como criar e gerir principais de serviço com a CLI 2.0 do Azure, consulte [Criar um principal de serviço do Azure com a CLI 2.0 do Azure](/cli/azure/create-an-azure-service-principal-azure-cli).
 
 ## <a name="get-the-code"></a>Obter o código
 
@@ -79,7 +79,7 @@ Também precisa de editar um valor no ficheiro `vm-quickstart-params.json`.
     }
 ```
 
-* `vm_password`: a palavra-passe da conta de utilizador de VM. Tem de ter 6-72 carateres de comprimento e conter 3 dos seguintes carateres:
+* `vm_password`: a palavra-passe da conta de utilizador de VM. Tem de ter 12-72 carateres de comprimento e conter 3 dos seguintes carateres:
   * uma letra minúscula
   * uma letra maiúscula
   * um número
