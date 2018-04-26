@@ -3,15 +3,15 @@ title: Implementar uma máquina virtual do Azure a partir do Go
 description: Implemente uma máquina virtual utilizando o Azure SDK para Go.
 author: sptramer
 ms.author: sttramer
-ms.date: 02/08/2018
+ms.date: 04/03/2018
 ms.topic: quickstart
 ms.devlang: go
 manager: carmonm
-ms.openlocfilehash: 46a1243ff2ff6bfcf3831e2cea3137c1f6051c78
-ms.sourcegitcommit: fcc1786d59d2e32c97a9a8e0748e06f564a961bd
+ms.openlocfilehash: 565580e9e6c6ced543bd00bbaa01383834d9a41c
+ms.sourcegitcommit: 2b2884ea7673c95ba45b3d6eec647200e75bfc5b
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 03/23/2018
+ms.lasthandoff: 04/19/2018
 ---
 # <a name="quickstart-deploy-an-azure-virtual-machine-from-a-template-with-the-azure-sdk-for-go"></a>Início rápido: implementar uma máquina virtual do Azure a partir de um modelo com o Azure SDK for Go
 
@@ -23,7 +23,7 @@ No final deste início rápido, tem uma VM em execução na qual inicia a sessã
 
 [!INCLUDE [cloud-shell-try-it.md](includes/cloud-shell-try-it.md)]
 
-Se utilizar uma instalação local da CLI do Azure, este início rápido necessita da versão 2.0.24 da CLI ou posterior. Execute `az --version` para certificar-se de que a sua instalação da CLI cumpre este requisito. Se precisar de instalar ou atualizar, consulte [Instalar a CLI 2.0 do Azure](/cli/azure/install-azure-cli).
+Se utilizar uma instalação local da CLI do Azure, este início rápido necessita da versão __2.0.28__ da CLI ou posterior. Execute `az --version` para certificar-se de que a sua instalação da CLI cumpre este requisito. Se precisar de instalar ou atualizar, consulte [Instalar a CLI 2.0 do Azure](/cli/azure/install-azure-cli).
 
 ## <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go 
 
@@ -31,69 +31,35 @@ Se utilizar uma instalação local da CLI do Azure, este início rápido necessi
 
 ## <a name="create-a-service-principal"></a>Criar um principal de serviço
 
+
 Para iniciar sessão com uma aplicação de forma não interativa, precisa de um principal de serviço. Os principais de serviço fazem parte do controlo de acesso baseado em funções (RBAC) que cria uma identidade de utilizador exclusiva. Para criar um novo principal de serviço com a CLI, execute o seguinte comando:
 
 ```azurecli-interactive
-az ad sp create-for-rbac --name az-go-vm-quickstart
+az ad sp create-for-rbac --name az-go-vm-quickstart --sdk-auth > quickstart.auth
 ```
 
-__Certifique-se__ de que regista os valores `appId`, `password`, e `tenant` no resultado. Estes valores são utilizados pela aplicação para autenticar com o Azure.
-
-Para mais informações sobre como criar e gerir principais de serviço com a CLI 2.0 do Azure, consulte [Criar um principal de serviço do Azure com a CLI 2.0 do Azure](/cli/azure/create-an-azure-service-principal-azure-cli).
+Defina a variável de ambiente `AZURE_AUTH_LOCATION` para ser o caminho completo para este ficheiro. Em seguida, o SDK localiza e lê as credenciais diretamente a partir deste ficheiro, sem que tenha de fazer quaisquer alterações ou registar informações do principal de serviço.
 
 ## <a name="get-the-code"></a>Obter o código
 
 Obter o código de início rápido e todas as dependências com `go get`.
 
 ```bash
-go get -u -d github.com/azure-samples/azure-sdk-for-go-samples/quickstart/deploy-vm/...
+go get -u -d github.com/azure-samples/azure-sdk-for-go-samples/quickstarts/deploy-vm/...
 ```
 
-Este código compila, mas não funciona corretamente enquanto não fornecer as informações da sua conta do Azure e o principal de serviço criado. No `main.go` há uma variável, `config`, que contém um struct `authInfo`. Este struct precisa que os valores do campo sejam substituídos para poder realizar a autenticação corretamente.
-
-```go
-    config = authInfo{ // Your application credentials
-        TenantID:               "", // Azure account tenantID
-        SubscriptionID:         "", // Azure subscription subscriptionID
-        ServicePrincipalID:     "", // Service principal appId
-        ServicePrincipalSecret: "", // Service principal password/secret
-    }
-```
-
-* `SubscriptionID`: o seu ID de subscrição, que pode ser obtido a partir do comando da CLI
-
-  ```azurecli-interactive
-  az account show --query id -o tsv
-  ```
-
-* `TenantID`: o seu ID de inquilino, o valor `tenant` registado ao criar o principal de serviço
-* `ServicePrincipalID`: o valor `appId` registado ao criar o principal de serviço
-* `ServicePrincipalSecret`: o valor `password` registado ao criar o principal de serviço
-
-Também precisa de editar um valor no ficheiro `vm-quickstart-params.json`.
-
-```json
-    "vm_password": {
-        "value": "_"
-    }
-```
-
-* `vm_password`: a palavra-passe da conta de utilizador de VM. Tem de ter 12-72 carateres de comprimento e conter 3 dos seguintes carateres:
-  * uma letra minúscula
-  * uma letra maiúscula
-  * um número
-  * um símbolo
+Não precisa de modificar o código de origem se a variável `AZURE_AUTH_LOCATION` estiver definida corretamente. Quando o programa é executado, carrega todas as informações de autenticação necessárias a partir daí.
 
 ## <a name="running-the-code"></a>Executar o código
 
 Execute o início rápido com o comando `go run`.
 
 ```bash
-cd $GOPATH/src/github.com/azure-samples/azure-sdk-for-go-samples/quickstart/deploy-vm
+cd $GOPATH/src/github.com/azure-samples/azure-sdk-for-go-samples/quickstarts/deploy-vm
 go run main.go
 ```
 
-Se existir uma falha na implementação, recebe uma mensagem a indicar que houve um problema, mas sem nenhum detalhe específico. Com a CLI do Azure, obtenha os detalhes da falha de implementação com o seguinte comando:
+Se existir uma falha na implementação, recebe uma mensagem a indicar que houve um problema, mas esta poderá não incluir detalhes suficientes. Com a CLI do Azure, obtenha os detalhes completos da falha de implementação com o seguinte comando:
 
 ```azurecli-interactive
 az group deployment show -g GoVMQuickstart -n VMDeployQuickstart
@@ -113,20 +79,9 @@ az group delete -n GoVMQuickstart
 
 O que o código de início rápido faz está num bloco de variáveis e de várias funções pequenas, cada das quais é abordada aqui.
 
-### <a name="variable-assignments-and-structs"></a>Atribuições de variáveis e structs
+### <a name="variables-constants-and-types"></a>Variáveis, constantes e tipos
 
-Dado que o início rápido é autónomo, utiliza variáveis globais em vez de opções de linha de comandos ou variáveis de ambiente.
-
-```go
-type authInfo struct {
-        TenantID               string
-        SubscriptionID         string
-        ServicePrincipalID     string
-        ServicePrincipalSecret string
-}
-```
-
-O struct `authInfo` é declarado para encapsular todas as informações necessárias para a autorização com os serviços do Azure.
+Uma vez que o início rápido é autónomo, utiliza constantes e variáveis globais.
 
 ```go
 const (
@@ -138,54 +93,51 @@ const (
     parametersFile = "vm-quickstart-params.json"
 )
 
+// Information loaded from the authorization file to identify the client
+type clientInfo struct {
+    SubscriptionID string
+    VMPassword     string
+}
+
 var (
-    config = authInfo{ // Your application credentials
-        TenantID:               "", // Azure account tenantID
-        SubscriptionID:         "", // Azure subscription subscriptionID
-        ServicePrincipalID:     "", // Service principal appId
-        ServicePrincipalSecret: "", // Service principal password/secret
-    }
-
-    ctx = context.Background()
-
-    token *adal.ServicePrincipalToken
+    ctx        = context.Background()
+    clientData clientInfo
+    authorizer autorest.Authorizer
 )
 ```
 
 Os valores são declarados, o que dá os nomes dos recursos criados. A localização também está especificada aqui, que pode alterar para ver como as implementações se comportam noutros datacenters. Nem todos os datacenters têm todos os recursos necessários disponíveis.
 
-As constantes `templateFile` e `parametersFile` apontam para os ficheiros necessários para a implementação. O token do principal de serviço é abordado mais tarde, estando a variável `ctx` num [contexto Go](https://blog.golang.org/context) para as operações de rede.
+O tipo `clientInfo` é declarado para encapsular todas as informações que têm de ser carregadas independentemente a partir do ficheiro de autenticação para configurar clientes no SDK e definir a palavra-passe da VM.
 
-### <a name="init-and-authorization"></a>init() e autorização
+As constantes `templateFile` e `parametersFile` apontam para os ficheiros necessários para a implementação. O valor `authorizer` será configurado pelo SDK do Go para autenticação e a variável `ctx` é um [Contexto do Go](https://blog.golang.org/context) para as operações de rede.
 
-O método `init()` para o código configura a autorização. Dado que a autorização é uma condição prévia para tudo no início rápido, faz sentido tê-la como parte da inicialização. 
+### <a name="authentication-and-initialization"></a>Autenticação e inicialização
+
+A função `init` configura a autenticação. Dado que a autenticação é uma condição prévia para tudo o que está no início rápido, faz sentido tê-la como parte da inicialização. Também carrega algumas informações necessárias a partir do ficheiro de autenticação para configurar os clientes e a VM.
 
 ```go
-// Authenticate with the Azure services over OAuth, using a service principal.
 func init() {
-    oauthConfig, err := adal.NewOAuthConfig(azure.PublicCloud.ActiveDirectoryEndpoint, config.TenantID)
+    var err error
+    authorizer, err = auth.NewAuthorizerFromFile(azure.PublicCloud.ResourceManagerEndpoint)
     if err != nil {
-        log.Fatalf("Failed to get OAuth config: %v\n", err)
+        log.Fatalf("Failed to get OAuth config: %v", err)
     }
-    token, err = adal.NewServicePrincipalToken(
-        *oauthConfig,
-        config.ServicePrincipalID,
-        config.ServicePrincipalSecret,
-        azure.PublicCloud.ResourceManagerEndpoint)
-    if err != nil {
-        log.Fatalf("faled to get token: %v\n", err)
-    }
+
+    authInfo, err := readJSON(os.Getenv("AZURE_AUTH_LOCATION"))
+    clientData.SubscriptionID = (*authInfo)["subscriptionId"].(string)
+    clientData.VMPassword = (*authInfo)["clientSecret"].(string)
 }
 ```
 
-Este código conclui dois passos para a autorização:
+Primeiro, [auth.NewAuthorizerFromFile](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#NewAuthorizerFromFile) é chamado para carregar as informações de autenticação a partir do ficheiro que se encontra em `AZURE_AUTH_LOCATION`. Em seguida, este ficheiro é carregado manualmente pela função `readJSON` (omitida aqui) para solicitar os dois valores necessários à execução do resto do programa: o ID de subscrição do cliente e o segredo do principal de serviço, que também é utilizado para a palavra-passe da VM.
 
-* As informações de configuração do OAuth para `TenantID` são obtidas pela interface do Azure Active Directory. O objeto [`azure.PublicCloud`](https://godoc.org/github.com/Azure/go-autorest/autorest/azure#PublicCloud) contém pontos finais utilizados na configuração do Azure standard.
-* A função [`adal.NewServicePrincipalToken()`](https://godoc.org/github.com/Azure/go-autorest/autorest/adal#NewServicePrincipalToken) é chamada. Esta função recebe as informações de OAuth juntamente com o início de sessão do principal de serviço, bem como o estilo de gestão do Azure que está a ser utilizado. A menos que tenha requisitos específicos e saiba o que está a fazer, este valor deve ser sempre `.ResourceManagerEndpoint`.
+> [!WARNING]
+> Para manter este início rápido simples, a palavra-passe do principal de serviço é reutilizada. Na produção, certifique-se de que __nunca__ reutiliza uma palavra-passe que dê acesso aos seus recursos do Azure.
 
 ### <a name="flow-of-operations-in-main"></a>Fluxo de operações em main()
 
-A função `main()` é simples, apenas indica o fluxo de operações e realiza uma verificação de erros.
+A função `main` é simples, apenas indica o fluxo de operações e realiza uma verificação de erros.
 
 ```go
 func main() {
@@ -193,32 +145,36 @@ func main() {
     if err != nil {
         log.Fatalf("failed to create group: %v", err)
     }
-    log.Printf("created group: %v\n", *group.Name)
+    log.Printf("Created group: %v", *group.Name)
 
-    log.Println("starting deployment")
+    log.Printf("Starting deployment: %s", deploymentName)
     result, err := createDeployment()
     if err != nil {
-        log.Fatalf("Failed to deploy correctly: %v", err)
+        log.Fatalf("Failed to deploy: %v", err)
     }
-    log.Printf("Completed deployment: %v", *result.Name)
+    if result.Name != nil {
+        log.Printf("Completed deployment %v: %v", deploymentName, *result.Properties.ProvisioningState)
+    } else {
+        log.Printf("Completed deployment %v (no data returned to SDK)", deploymentName)
+    }
     getLogin()
 }
 ```
 
 Os passos que o código executa são, por ordem:
 
-* Criar o grupo de recursos para o qual implementar (`createGroup()`)
-* Criar a implementação dentro deste grupo (`createDeployment()`)
-* Obter e exibir informações de início de sessão para a VM implementada (`getLogin()`)
+* Criar o grupo de recursos para o qual implementar (`createGroup`)
+* Criar a implementação dentro deste grupo (`createDeployment`)
+* Obter e exibir informações de início de sessão para a VM implementada (`getLogin`)
 
 ### <a name="creating-the-resource-group"></a>Criar o grupo de recursos
 
-A função `createGroup()` cria o grupo de recursos. Ao olhar para o fluxo e argumentos de chamada demonstra a forma como as interações de serviço estão estruturadas no SDK.
+A função `createGroup` cria o grupo de recursos. Ao olhar para o fluxo e argumentos de chamada demonstra a forma como as interações de serviço estão estruturadas no SDK.
 
 ```go
 func createGroup() (group resources.Group, err error) {
-        groupsClient := resources.NewGroupsClient(config.SubscriptionID)
-        groupsClient.Authorizer = autorest.NewBearerAuthorizer(token)
+    groupsClient := resources.NewGroupsClient(clientData.SubscriptionID)
+    groupsClient.Authorizer = authorizer
 
         return groupsClient.CreateOrUpdate(
                 ctx,
@@ -230,18 +186,17 @@ func createGroup() (group resources.Group, err error) {
 
 O fluxo geral de interação com um serviço do Azure é:
 
-* Criar o cliente com o método `service.NewXClient()`, em que `X` é o tipo de recursos de `service` com o qual quer interagir. Esta função recebe sempre um ID de subscrição.
+* Criar o cliente com o método `service.New*Client()`, em que `*` é o tipo de recursos de `service` com o qual quer interagir. Esta função recebe sempre um ID de subscrição.
 * Defina o método de autorização para o cliente, permitindo que interaja com a API remota.
 * Faça a chamada de método no cliente correspondente à API remota. Os métodos do cliente do serviço normalmente aceitam o nome do recurso e um objeto de metadados.
 
-A função [`to.StringPtr()`](https://godoc.org/github.com/Azure/go-autorest/autorest/to#StringPtr) é utilizada para realizar uma conversão de tipo aqui. Os structs de parâmetros para os métodos do SDK quase exclusivamente aceitam apontadores, pelo que esses métodos são fornecidos para tornar as conversões de tipo mais fáceis. Consulte a documentação do módulo [autorest/to](https://godoc.org/github.com/Azure/go-autorest/autorest/to) para a lista completa e os conversores de conveniência de comportamento.
+A função [`to.StringPtr`](https://godoc.org/github.com/Azure/go-autorest/autorest/to#StringPtr) é utilizada para realizar uma conversão de tipo aqui. Os parâmetros dos métodos de SDK quase exclusivamente aceitam ponteiros, pelo que são fornecidos métodos de conveniência para facilitar as conversões de tipo. Veja a documentação do módulo [autorest/to](https://godoc.org/github.com/Azure/go-autorest/autorest/to) para obter a lista completa de conversores de conveniência e o respetivo comportamento.
 
-A operação `groupsClient.CreateOrUpdate()` devolve um apontador para um struct de dados que representa o grupo de recursos. Um valor de retorno direto deste tipo indica uma operação de curto-prazo que deverá ser síncrona. Na secção seguinte irá ver um exemplo de uma operação de longo-prazo e como interagir com elas.
+O método `groupsClient.CreateOrUpdate` devolve um ponteiro para um tipo de dados que representa o grupo de recursos. Um valor de retorno direto deste tipo indica uma operação de curto-prazo que deverá ser síncrona. Na secção seguinte, verá um exemplo de uma operação de longa duração e como interagir com ela.
 
 ### <a name="performing-the-deployment"></a>Realizar a implementação
 
-Uma vez criado o grupo para conter os seus recursos, é o momento de executar a implementação. Este código é dividido em várias secções mais pequenas para dar ênfase a partes diferentes da sua lógica.
-
+Uma vez criado o grupo de recursos, é o momento de executar a implementação. Este código é dividido em várias secções mais pequenas para dar ênfase a partes diferentes da sua lógica.
 
 ```go
 func createDeployment() (deployment resources.DeploymentExtended, err error) {
@@ -253,51 +208,59 @@ func createDeployment() (deployment resources.DeploymentExtended, err error) {
     if err != nil {
         return
     }
-
+    (*params)["vm_password"] = map[string]string{
+        "value": clientData.VMPassword,
+    }
         // ...
 ```
 
-Os ficheiros de implementação são carregados por `readJSON`, cujos detalhes são ignorados aqui. Esta função devolve um `*map[string]interface{}`, o tipo utilizado para construir os metadados para a chamada de implementação dos recursos.
+Os ficheiros de implementação são carregados por `readJSON`, cujos detalhes são ignorados aqui. Esta função devolve um `*map[string]interface{}`, o tipo utilizado para construir os metadados para a chamada de implementação dos recursos. A palavra-passe da VM também é definida manualmente nos parâmetros da implementação.
 
 ```go
         // ...
-        
-        deploymentsClient := resources.NewDeploymentsClient(config.SubscriptionID)
-        deploymentsClient.Authorizer = autorest.NewBearerAuthorizer(token)
 
-        deploymentFuture, err := deploymentsClient.CreateOrUpdate(
-                ctx,
-                resourceGroupName,
-                deploymentName,
-                resources.Deployment{
-                        Properties: &resources.DeploymentProperties{
-                                Template:   template,
-                                Parameters: params,
-                                Mode:       resources.Incremental,
-                        },
-                },
-        )
-        if err != nil {
-                log.Fatalf("Failed to create deployment: %v", err)
-        }
-        //...
+    deploymentsClient := resources.NewDeploymentsClient(clientData.SubscriptionID)
+    deploymentsClient.Authorizer = authorizer
+
+    deploymentFuture, err := deploymentsClient.CreateOrUpdate(
+        ctx,
+        resourceGroupName,
+        deploymentName,
+        resources.Deployment{
+            Properties: &resources.DeploymentProperties{
+                Template:   template,
+                Parameters: params,
+                Mode:       resources.Incremental,
+            },
+        },
+    )
+    if err != nil {
+        return
+    }
 ```
 
-Este código segue o mesmo padrão da criação do grupo de recursos. É criado um novo cliente, dada a capacidade de autenticar com o Azure e, em seguida, é chamado um método. O método tem inclusive o mesmo nome (`CreateOrUpdate`) do método correspondente para os grupos de recursos. Este padrão é visto com frequência no SDK. Os métodos que realizam trabalho semelhante costumam ter o mesmo nome.
+Este código segue o mesmo padrão da criação do grupo de recursos. É criado um novo cliente, dada a capacidade de autenticar com o Azure e, em seguida, é chamado um método. O método tem inclusive o mesmo nome (`CreateOrUpdate`) do método correspondente para os grupos de recursos. Este padrão é utilizado em todo o SDK. Os métodos que realizam trabalho semelhante costumam ter o mesmo nome.
 
-A grande diferença está no valor de retorno do método `deploymentsClient.CreateOrUpdate()`. O valor é um objeto `Future`, que segue o [padrão de design futuro](https://en.wikipedia.org/wiki/Futures_and_promises). Os futuros representam uma operação de longo-prazo no Azure que pretende consultar ocasionalmente enquanto realiza outros trabalhos.
+A grande diferença está no valor de retorno do método `deploymentsClient.CreateOrUpdate`. Este valor é do tipo [Futuro](https://godoc.org/github.com/Azure/go-autorest/autorest/azure#Future), que segue o [padrão de design futuro](https://en.wikipedia.org/wiki/Futures_and_promises). Os futuros representam uma operação de longa duração no Azure que pode consultar, cancelar ou bloquear após a respetiva conclusão.
 
 ```go
         //...
-        err = deploymentFuture.Future.WaitForCompletion(ctx, deploymentsClient.BaseClient.Client)
-        if err != nil {
-                log.Fatalf("Error while waiting for deployment creation: %v", err)
-        }
-        return deploymentFuture.Result(deploymentsClient)
-}
+    err = deploymentFuture.Future.WaitForCompletion(ctx, deploymentsClient.BaseClient.Client)
+    if err != nil {
+        return
+    }
+    deployment, err = deploymentFuture.Result(deploymentsClient)
+
+    // Work around possible bugs or late-stage failures
+    if deployment.Name == nil || err != nil {
+        deployment, _ = deploymentsClient.Get(ctx, resourceGroupName, deploymentName)
+    }
+    return
 ```
 
-Neste exemplo, o melhor a fazer é aguardar que a operação seja concluída. Aguardar por um futuro requer um [objeto de contexto](https://blog.golang.org/context) e o cliente que criou o objeto Futuro. Existem duas possíveis origens do erro: um erro causado do lado do cliente ao tentar invocar o método, e uma resposta de erro do servidor. A última opção é devolvida como parte da chamada `deploymentFuture.Result()`.
+Neste exemplo, o melhor a fazer é aguardar que a operação seja concluída. Aguardar por um futuro requer um [objeto de contexto](https://blog.golang.org/context) e o cliente que criou o `Future`. Existem duas possíveis origens do erro: um erro causado do lado do cliente ao tentar invocar o método, e uma resposta de erro do servidor. A última opção é devolvida como parte da chamada `deploymentFuture.Result`.
+
+Uma vez obtidas as informações de implementação, há uma solução para possíveis erros, em que as informações de implementação possam estar vazias, com uma chamada manual para `deploymentsClient.Get` para garantir que os dados são povoados.
 
 ### <a name="obtaining-the-assigned-ip-address"></a>Obter o endereço IP atribuído
 
@@ -305,35 +268,36 @@ Para fazer alguma coisa com a VM recém-criada, necessita do endereço IP atribu
 
 ```go
 func getLogin() {
-        params, err := readJSON(parametersFile)
-        if err != nil {
-                log.Fatalf("Unable to read parameters. Get login information with `az network public-ip list -g %s", resourceGroupName)
-        }
+    params, err := readJSON(parametersFile)
+    if err != nil {
+        log.Fatalf("Unable to read parameters. Get login information with `az network public-ip list -g %s", resourceGroupName)
+    }
 
-        addressClient := network.NewPublicIPAddressesClient(config.SubscriptionID)
-        addressClient.Authorizer = autorest.NewBearerAuthorizer(token)
-        ipName := (*params)["publicIPAddresses_QuickstartVM_ip_name"].(map[string]interface{})
-        ipAddress, err := addressClient.Get(ctx, resourceGroupName, ipName["value"].(string), "")
-        if err != nil {
-                log.Fatalf("Unable to get IP information. Try using `az network public-ip list -g %s", resourceGroupName)
-        }
+    addressClient := network.NewPublicIPAddressesClient(clientData.SubscriptionID)
+    addressClient.Authorizer = authorizer
+    ipName := (*params)["publicIPAddresses_QuickstartVM_ip_name"].(map[string]interface{})
+    ipAddress, err := addressClient.Get(ctx, resourceGroupName, ipName["value"].(string), "")
+    if err != nil {
+        log.Fatalf("Unable to get IP information. Try using `az network public-ip list -g %s", resourceGroupName)
+    }
 
-        vmUser := (*params)["vm_user"].(map[string]interface{})
-        vmPass := (*params)["vm_password"].(map[string]interface{})
+    vmUser := (*params)["vm_user"].(map[string]interface{})
 
-        log.Printf("Log in with ssh: %s@%s, password: %s",
-                vmUser["value"].(string),
-                *ipAddress.PublicIPAddressPropertiesFormat.IPAddress,
-                vmPass["value"].(string))
+    log.Printf("Log in with ssh: %s@%s, password: %s",
+        vmUser["value"].(string),
+        *ipAddress.PublicIPAddressPropertiesFormat.IPAddress,
+        clientData.VMPassword)
 }
 ```
 
 Este método depende das informações armazenadas no ficheiro de parâmetros. O código pode consultar diretamente a VM para obter o seu NIC, consultar o NIC para obter o seu recurso de IP e depois consultar o recurso de IP diretamente. Trata-se de uma longa cadeia de dependências e operações a resolver, o que a torna dispendiosa. Dado que a informação de JSON é local, pode ser carregada como alternativa.
 
-Os valores para o utilizador e palavra-passe de VM são igualmente carregados a partir do JSON.
+O valor para o utilizador da VM também é carregado a partir do JSON. A palavra-passe da VM foi carregada anteriormente a partir do ficheiro de autenticação.
 
 ## <a name="next-steps"></a>Passos seguintes
 
 Neste início rápido, utilizou um modelo existente e implementou-o através do Go. Em seguida, ligou-se à VM recém-criada por SSH para garantir que está em execução.
 
 Para saber mais sobre o trabalho com máquinas virtuais no ambiente do Azure com o Go, veja [Exemplos de computação no Azure para o Go](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/compute) ou [Exemplos de gestão de recursos do Azure para o Go](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/resources).
+
+Para saber mais sobre os métodos de autenticação disponíveis no SDK e os tipos de autenticação que suportam, veja [Autenticação com o SDK do Azure para Go](azure-sdk-go-authorization.md).
