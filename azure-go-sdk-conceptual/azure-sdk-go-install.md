@@ -3,15 +3,17 @@ title: Instale o Azure SDK para Go
 description: Como instalar, realizar vendoring e configurar o SDK do Azure para Go.
 author: sptramer
 ms.author: sttramer
-ms.date: 03/14/2018
-ms.topic: article
-ms.devlang: go
 manager: carmonm
-ms.openlocfilehash: a6a92e080aea1a92f47a9d7083f133ca05a47541
-ms.sourcegitcommit: 26520a8c6e812facb5b9432d68c370fa23c99888
+ms.date: 03/14/2018
+ms.topic: conceptual
+ms.prod: azure
+ms.technology: azure-sdk-go
+ms.devlang: go
+ms.openlocfilehash: ad77bdff881770512a828b19dc7af4821f4a55ad
+ms.sourcegitcommit: f08abf902b48f8173aa6e261084ff2cfc9043305
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 04/16/2018
+ms.lasthandoff: 05/03/2018
 ---
 # <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go
 
@@ -62,7 +64,7 @@ import "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2017-03-30/compu
 
 Recomenda-se atualmente que utilize a versão mais recente de um serviço, a menos que tenha um motivo para fazer de outra forma.
 
-Se precisar de um instantâneo coletivo dos serviços, também pode selecionar uma versão de perfil único. Neste momento, o único perfil bloqueado é a versão `2017-03-30`, que pode não ter as funcionalidades mais recentes dos serviços. Os perfis encontram-se sob o módulo `profiles`, com a respetiva versão no formato `YYYY-MM-DD`. Os serviços são agrupados sob a respetiva versão de perfil. Por exemplo, para importar o módulo de gestão dos Recursos do Azure do perfil `2017-03-09`:
+Se precisar de um instantâneo coletivo dos serviços, também pode selecionar uma versão de perfil único. Neste momento, o único perfil bloqueado é a versão `2017-03-09`, que pode não ter as funcionalidades mais recentes dos serviços. Os perfis encontram-se sob o módulo `profiles`, com a respetiva versão no formato `YYYY-MM-DD`. Os serviços são agrupados sob a respetiva versão de perfil. Por exemplo, para importar o módulo de gestão dos Recursos do Azure do perfil `2017-03-09`:
 
 ```go
 import "github.com/Azure/azure-sdk-for-go/profiles/2017-03-09/resources/mgmt/resources"
