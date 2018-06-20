@@ -15,6 +15,7 @@ ms.sourcegitcommit: f08abf902b48f8173aa6e261084ff2cfc9043305
 ms.translationtype: HT
 ms.contentlocale: pt-PT
 ms.lasthandoff: 05/03/2018
+ms.locfileid: "32319854"
 ---
 # <a name="azure-sdk-for-go-samples-for-authentication-and-aad"></a><span data-ttu-id="36dbc-103">Amostras do SDK do Azure para Go para autenticação e AAD</span><span class="sxs-lookup"><span data-stu-id="36dbc-103">Azure SDK for Go samples for authentication and AAD</span></span>
 
