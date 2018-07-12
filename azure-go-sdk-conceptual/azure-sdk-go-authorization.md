@@ -12,12 +12,12 @@ ms.technology: azure-sdk-go
 ms.devlang: go
 ms.service: active-directory
 ms.component: authentication
-ms.openlocfilehash: 370f5607b89c0044022f7987d06c3a55c9d6f352
-ms.sourcegitcommit: f08abf902b48f8173aa6e261084ff2cfc9043305
+ms.openlocfilehash: c7970167070bdf1f3fc75692f3e34268801c65df
+ms.sourcegitcommit: 181d4e0b164cf39b3feac346f559596bd19c94db
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 05/03/2018
-ms.locfileid: "32319888"
+ms.lasthandoff: 07/11/2018
+ms.locfileid: "38067004"
 ---
 # <a name="authentication-methods-in-the-azure-sdk-for-go"></a>Métodos de autenticação no Azure SDK para Go
 
@@ -45,7 +45,7 @@ O Azure SDK para Go oferece vários tipos diferentes de autenticação que utili
 [Criar um principal de serviço com a CLI 2.0 do Azure]: /cli/azure/create-an-azure-service-principal-azure-cli
 [Identidade de Serviço Gerida (MSI) para recursos do Azure]: /azure/active-directory/managed-service-identity/overview
 
-Estes tipos de autenticação estão disponíveis através de métodos diferentes. A [_autenticação baseada no ambiente_ ](#use-environment-based-authentication) lê as credenciais diretamente a partir do ambiente do programa. A [_autenticação baseada em ficheiro_ ](#use-file-based-authentication) carrega um ficheiro que contém as credenciais do principal de serviço. A [_autenticação baseada em cliente_ ](#use-an-authentication-client) utiliza um objeto no código do Go e torna-o responsável por fornecer as credenciais durante a execução do programa. Por fim, a [ _autenticação de token de dispositivo_ ](#use-device-token-authentication) exige que os utilizadores iniciem sessão interativamente através de um browser com um token e não pode ser utilizada com a autenticação baseada no ambiente ou em ficheiros.
+Estes tipos de autenticação estão disponíveis através de métodos diferentes. A [_autenticação baseada no ambiente_ ](#use-environment-based-authentication) lê as credenciais diretamente a partir do ambiente do programa. A [_autenticação baseada em ficheiro_ ](#use-file-based-authentication) carrega um ficheiro que contém as credenciais do principal de serviço. A [_autenticação baseada em cliente_ ](#use-an-authentication-client) utiliza um objeto no código do Go e torna-o responsável por fornecer as credenciais durante a execução do programa. Por fim, a [_autenticação de token de dispositivo_](#use-device-token-authentication) exige que os utilizadores iniciem sessão interativamente através de um browser com um token e não pode ser utilizada com a autenticação baseada no ambiente ou em ficheiros.
 
 Todas as funções de autenticação e tipos estão disponíveis no pacote `github.com/Azure/go-autorest/autorest/azure/auth`.
 
@@ -107,7 +107,7 @@ O `ResourceManagerURL` varia com base no nome de região, nome da máquina e nom
 | Kit de Desenvolvimento | `https://management.local.azurestack.external/` |
 | Sistemas Integrados | `https://management.(region).ext-(machine-name).(FQDN)` |
 
-Para obter mais detalhes sobre como utilizar o SDK for Go no Azure Stack, consulte [Utilizar perfis de versão de API com o Go no Azure Stack](https://docs.microsoft.com/en-us/azure/azure-stack/user/azure-stack-version-profiles-go)
+Para obter mais detalhes sobre como utilizar o SDK for Go no Azure Stack, consulte [Utilizar perfis de versão de API com o Go no Azure Stack](https://docs.microsoft.com/azure/azure-stack/user/azure-stack-version-profiles-go)
 
 
 ## <a name="use-file-based-authentication"></a>Utilizar a autenticação baseada em ficheiro
@@ -131,7 +131,7 @@ Para saber mais sobre a utilização de principais de serviço e a gestão das p
 
 ## <a name="use-device-token-authentication"></a>Utilizar a autenticação de token de dispositivo
 
-Se pretender que os utilizadores iniciem sessão interativamente, a melhor forma para oferecer essa funcionalidade é através da autenticação de token de dispositivo. Este fluxo de autenticação disponibiliza um token ao utilizador para ser colado num site de início de sessão da Microsoft, onde podem iniciar sessão com uma conta do Azure Active Directory (AAD). Este método de autenticação suporta contas com a autenticação multifator ativada, ao contrário da autenticação de nome de utilizador/palavra-passe padrão.
+Se pretender que os utilizadores iniciem sessão interativamente, a melhor forma para oferecer essa funcionalidade é através da autenticação de token de dispositivo. Este fluxo de autenticação disponibiliza um token ao utilizador para ser colado num site de início de sessão da Microsoft, onde podem autenticar com uma conta do Azure Active Directory (AAD). Este método de autenticação suporta contas com a autenticação multifator ativada, ao contrário da autenticação de nome de utilizador/palavra-passe padrão.
 
 Para utilizar a autenticação de token de dispositivo, crie um objeto authorizer [DeviceFlowConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#DeviceFlowConfig) com a função [NewDeviceFlowConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#NewDeviceFlowConfig). Chame [Authorizer](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#DeviceFlowConfig.Authorizer) no objeto resultante para iniciar o processo de autenticação. Os blocos de autenticação do fluxo do dispositivo programam a execução até todo o fluxo de autenticação ser concluído.
 
