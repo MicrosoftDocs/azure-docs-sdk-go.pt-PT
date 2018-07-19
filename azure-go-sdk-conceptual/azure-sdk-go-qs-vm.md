@@ -1,21 +1,21 @@
 ---
 title: Implementar uma máquina virtual do Azure a partir do Go
-description: Implemente uma máquina virtual utilizando o Azure SDK para Go.
+description: Implemente uma máquina virtual utilizando o SDK do Azure para Go.
 author: sptramer
 ms.author: sttramer
 manager: carmonm
-ms.date: 04/03/2018
+ms.date: 07/13/2018
 ms.topic: quickstart
 ms.prod: azure
 ms.technology: azure-sdk-go
 ms.service: virtual-machines
 ms.devlang: go
-ms.openlocfilehash: 7592e8617436a76dd27cac5269971051982425bf
-ms.sourcegitcommit: 181d4e0b164cf39b3feac346f559596bd19c94db
+ms.openlocfilehash: 6b1de35748fb7694d45715fa7f028d5730530d2e
+ms.sourcegitcommit: d1790b317a8fcb4d672c654dac2a925a976589d4
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 07/11/2018
-ms.locfileid: "38067021"
+ms.lasthandoff: 07/14/2018
+ms.locfileid: "39039561"
 ---
 # <a name="quickstart-deploy-an-azure-virtual-machine-from-a-template-with-the-azure-sdk-for-go"></a>Início rápido: implementar uma máquina virtual do Azure a partir de um modelo com o Azure SDK for Go
 
@@ -27,9 +27,9 @@ No final deste início rápido, tem uma VM em execução na qual inicia a sessã
 
 [!INCLUDE [cloud-shell-try-it.md](includes/cloud-shell-try-it.md)]
 
-Se utilizar uma instalação local da CLI do Azure, este início rápido necessita da versão __2.0.28__ da CLI ou posterior. Execute `az --version` para certificar-se de que a sua instalação da CLI cumpre este requisito. Se precisar de instalar ou atualizar, consulte [Instalar a CLI 2.0 do Azure](/cli/azure/install-azure-cli).
+Se utilizar uma instalação local da CLI do Azure, este início rápido necessita da versão __2.0.28__ da CLI ou posterior. Execute `az --version` para certificar-se de que a sua instalação da CLI cumpre este requisito. Se precisar de instalar ou atualizar, veja [Instalar a CLI do Azure](/cli/azure/install-azure-cli).
 
-## <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go 
+## <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go
 
 [!INCLUDE [azure-sdk-go-get](includes/azure-sdk-go-get.md)]
 
@@ -242,7 +242,9 @@ Os ficheiros de implementação são carregados por `readJSON`, cujos detalhes s
     }
 ```
 
-Este código segue o mesmo padrão da criação do grupo de recursos. É criado um novo cliente, dada a capacidade de autenticar com o Azure e, em seguida, é chamado um método. O método tem inclusive o mesmo nome (`CreateOrUpdate`) do método correspondente para os grupos de recursos. Este padrão é utilizado em todo o SDK. Os métodos que realizam trabalho semelhante costumam ter o mesmo nome.
+Este código segue o mesmo padrão da criação do grupo de recursos. É criado um novo cliente, dada a capacidade de autenticar com o Azure e, em seguida, é chamado um método.
+O método tem inclusive o mesmo nome (`CreateOrUpdate`) do método correspondente para os grupos de recursos. Este padrão é utilizado em todo o SDK.
+Os métodos que realizam trabalho semelhante costumam ter o mesmo nome.
 
 A grande diferença está no valor de retorno do método `deploymentsClient.CreateOrUpdate`. Este valor é do tipo [Futuro](https://godoc.org/github.com/Azure/go-autorest/autorest/azure#Future), que segue o [padrão de design futuro](https://en.wikipedia.org/wiki/Futures_and_promises). Os futuros representam uma operação de longa duração no Azure que pode consultar, cancelar ou bloquear após a respetiva conclusão.
 
