@@ -9,12 +9,12 @@ ms.topic: conceptual
 ms.prod: azure
 ms.technology: azure-sdk-go
 ms.devlang: go
-ms.openlocfilehash: 3388359bba791c87025b6ffd0e6b476f95589f73
-ms.sourcegitcommit: 81e97407e6139375bf7357045e818c87a17dcde1
+ms.openlocfilehash: 013a771345d96f0fa8dbece3218a01650744f70b
+ms.sourcegitcommit: 8b9e10b960150dc08f046ab840d6a5627410db29
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 06/19/2018
-ms.locfileid: "36262985"
+ms.lasthandoff: 09/07/2018
+ms.locfileid: "44059191"
 ---
 # <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go
 
@@ -37,9 +37,9 @@ Alguns serviços do Azure têm o seu próprio SDK do Go e não estão incluídos
 
 ## <a name="vendor-the-azure-sdk-for-go"></a>Fornecedor do SDK do Azure para Go
 
-O vendoring do SDK do Azure para Go pode ser realizado através do [dep](https://github.com/golang/dep). Por motivos de estabilidade, recomenda-se o vendoring. Para poder utilizar o suporte `dep`, adicione `github.com/Azure/azure-sdk-for-go` a uma secção `[[constraint]]` do seu `Gopkg.toml`. Por exemplo, para realizar o vendoring na versão `14.0.0`, adicione a entrada seguinte:
+O vendoring do SDK do Azure para Go pode ser realizado através do [dep](https://github.com/golang/dep). Por motivos de estabilidade, recomenda-se o vendoring. Para utilizar `dep` no seu próprio projeto, adicione `github.com/Azure/azure-sdk-for-go` a uma secção `[[constraint]]` do seu `Gopkg.toml`. Por exemplo, para realizar o vendoring na versão `14.0.0`, adicione a entrada seguinte:
 
-```
+```toml
 [[constraint]]
 name = "github.com/Azure/azure-sdk-for-go"
 version = "14.0.0"
@@ -62,13 +62,14 @@ Obtém uma lista completa dos módulos disponíveis do GoDoc para [serviços dis
 [autorest/adal]: https://godoc.org/github.com/Azure/go-autorest/autorest/adal
 [autorest/to]: https://godoc.org/github.com/Azure/go-autorest/autorest/to
 
-Os módulos dos serviços do Azure têm versões independentemente das APIs do SDK para os mesmos. Estas versões fazem parte do caminho de importação do módulo e são provenientes de uma _versão de serviço_ ou de um _perfil_. Atualmente, é recomendado que utilize uma versão de serviço específica para o desenvolvimento e a versão. Os serviços encontram-se no módulo `services`. O caminho completo para a importação é o nome do serviço, seguido da versão no formato `YYYY-MM-DD`, seguido do nome do serviço novamente. Por exemplo, para incluir a versão `2017-03-30` do Serviço de computação:
+Os pacotes do Go e os serviços do Azure têm versões independentes. As versões dos serviços fazem parte do caminho de importação do módulo, abaixo do módulo `services`. O caminho completo para o módulo é o nome do serviço, seguido da versão no formato `YYYY-MM-DD`, seguido novamente do nome do serviço. Por exemplo, para importar a versão `2017-03-30` do Serviço de computação:
 
 ```go
 import "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2017-03-30/compute"
 ```
 
-Recomenda-se atualmente que utilize a versão mais recente de um serviço, a menos que tenha um motivo para fazer de outra forma.
+Recomenda-se que utilize a versão mais recente de um serviço quando iniciar o desenvolvimento e que seja consistente nessa utilização.
+Os requisitos dos serviços podem mudar entre versões, o que pode quebrar o seu código, mesmo que não haja atualizações do SDK para Go durante esse período.
 
 Se precisar de um instantâneo coletivo dos serviços, também pode selecionar uma versão de perfil único. Neste momento, o único perfil bloqueado é a versão `2017-03-09`, que pode não ter as funcionalidades mais recentes dos serviços. Os perfis encontram-se sob o módulo `profiles`, com a respetiva versão no formato `YYYY-MM-DD`. Os serviços são agrupados sob a respetiva versão de perfil. Por exemplo, para importar o módulo de gestão dos Recursos do Azure do perfil `2017-03-09`:
 

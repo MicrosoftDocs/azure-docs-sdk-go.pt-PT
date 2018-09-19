@@ -5,34 +5,33 @@ services: azure
 author: sptramer
 ms.author: sttramer
 manager: carmonm
-ms.date: 04/03/2018
+ms.date: 09/05/2018
 ms.topic: conceptual
-ms.prod: azure
 ms.technology: azure-sdk-go
 ms.devlang: go
 ms.service: active-directory
 ms.component: authentication
-ms.openlocfilehash: f5e76fc745512a3a52172f560c3a24f510e96feb
-ms.sourcegitcommit: d1790b317a8fcb4d672c654dac2a925a976589d4
+ms.openlocfilehash: 28fd4a4c0832ab19dcf52dc549d0ddc0d1eec6f1
+ms.sourcegitcommit: 8b9e10b960150dc08f046ab840d6a5627410db29
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 07/14/2018
-ms.locfileid: "39039544"
+ms.lasthandoff: 09/07/2018
+ms.locfileid: "44059106"
 ---
 # <a name="authentication-methods-in-the-azure-sdk-for-go"></a>Métodos de autenticação no Azure SDK para Go
 
-O Azure SDK para Go oferece diversos tipos e métodos de autenticação que a sua aplicação pode utilizar. Os métodos de autenticação suportados incluem a solicitação de informações a partir de variáveis do ambiente e a autenticação interativa baseada na Web. Este artigo apresenta os tipos de autenticação disponíveis no SDK e os métodos para utilizá-los. Também irá aprender as melhores práticas para selecionar o tipo de autenticação mais adequado para a sua aplicação.
+O SDK do Azure para Go oferece várias formas de efetuar a autenticação no Azure. Estes _tipos_ de autenticação são invocados através de diferentes _métodos_ de autenticação. Este artigo aborda os tipos e métodos disponíveis, e como escolher os mais indicados para a sua aplicação.
 
 ## <a name="available-authentication-types-and-methods"></a>Tipos e métodos de autenticação disponíveis
 
-O Azure SDK para Go oferece vários tipos diferentes de autenticação que utilizam conjuntos de credenciais diferentes. Cada um destes tipos de autenticação está disponível através de métodos de autenticação diferentes que são a forma como o SDK processa estas credenciais como entradas de dados. A tabela seguinte descreve os tipos de autenticação disponíveis e as situações em que são recomendados para utilização na sua aplicação.
+O Azure SDK para Go oferece vários tipos diferentes de autenticação que utilizam conjuntos de credenciais diferentes. Cada tipo de autenticação está disponível através de diferentes métodos de autenticação, os quais correspondem ao modo como o SDK processa estas credenciais como entradas de dados. A tabela seguinte descreve os tipos de autenticação disponíveis e as situações em que são recomendados para utilização na sua aplicação.
 
 | Tipo de autenticação | Recomendado quando... |
 |---------------------|---------------------|
 | Autenticação baseada em certificado | Tem um certificado X509 configurado para um utilizador ou principal de serviço do Azure Active Directory (AAD). Para obter mais informações, consulte [Introdução à autenticação baseada em certificado no Azure Active Directory]. |
 | Credenciais de cliente | Tem um principal de serviço configurado para esta aplicação ou uma classe de aplicações a que pertence. Para obter mais informações, veja [Criar um principal de serviço com a CLI do Azure]. |
 | Identidade de Serviço Gerida (MSI) | A aplicação está a ser executada num recurso do Azure configurado com Identidade de Serviço Gerida (MSI). Para obter mais informações, consulte [Identidade de Serviço Gerida (MSI) para recursos do Azure]. |
-| Token de dispositivo | A aplicação destina-se a ser utilizada __apenas__ de forma interativa e terá diversos utilizadores, potencialmente a partir de múltiplos inquilinos do AAD. Os utilizadores têm acesso a um browser para iniciar sessão. Para obter mais informações, consulte [Utilizar a autenticação de token de dispositivo](#use-device-token-authentication).|
+| Token de dispositivo | A sua aplicação destina-se a ser utilizada __apenas__ de forma interativa. Os utilizadores podem ter a autenticação multifator ativada. Os utilizadores têm acesso a um browser para iniciar sessão. Para obter mais informações, consulte [Utilizar a autenticação de token de dispositivo](#use-device-token-authentication).|
 | Nome de utilizador/palavra-passe | Tem uma aplicação interativa que não pode utilizar qualquer outro método de autenticação. Os utilizadores não têm a autenticação multifator ativada para o início de sessão do AAD. |
 
 > [!IMPORTANT]
@@ -45,7 +44,12 @@ O Azure SDK para Go oferece vários tipos diferentes de autenticação que utili
 [Criar um principal de serviço com a CLI do Azure]: /cli/azure/create-an-azure-service-principal-azure-cli
 [Identidade de Serviço Gerida (MSI) para recursos do Azure]: /azure/active-directory/managed-service-identity/overview
 
-Estes tipos de autenticação estão disponíveis através de métodos diferentes. A [_autenticação baseada no ambiente_ ](#use-environment-based-authentication) lê as credenciais diretamente a partir do ambiente do programa. A [_autenticação baseada em ficheiro_ ](#use-file-based-authentication) carrega um ficheiro que contém as credenciais do principal de serviço. A [_autenticação baseada em cliente_ ](#use-an-authentication-client) utiliza um objeto no código do Go e torna-o responsável por fornecer as credenciais durante a execução do programa. Por fim, a [_autenticação de token de dispositivo_](#use-device-token-authentication) exige que os utilizadores iniciem sessão interativamente através de um browser com um token e não pode ser utilizada com a autenticação baseada no ambiente ou em ficheiros.
+Estes tipos de autenticação estão disponíveis através de métodos diferentes.
+
+* A [_autenticação baseada no ambiente_ ](#use-environment-based-authentication) lê as credenciais diretamente a partir do ambiente do programa.
+* A [_autenticação baseada em ficheiro_ ](#use-file-based-authentication) carrega um ficheiro que contém as credenciais do principal de serviço.
+* A [_autenticação baseada no cliente_](#use-an-authentication-client) utiliza um objeto no código e atribui ao utilizador a responsabilidade de fornecer as credenciais durante a execução do programa.
+* A [_autenticação de token de dispositivo_](#use-device-token-authentication) necessita que os utilizadores iniciem sessão de forma interativa através de um browser com um token.
 
 Todas as funções de autenticação e tipos estão disponíveis no pacote `github.com/Azure/go-autorest/autorest/azure/auth`.
 
@@ -54,9 +58,16 @@ Todas as funções de autenticação e tipos estão disponíveis no pacote `gith
 
 ## <a name="use-environment-based-authentication"></a>Utilizar a autenticação baseada no ambiente
 
-Se estiver a executar a aplicação num ambiente rigorosamente controlado, tal como num contentor, a autenticação baseada no ambiente é uma opção de natural. Configure o ambiente da shell antes de executar a aplicação e o Go SDK lê estas variáveis de ambiente em runtime para efetuar a autenticação com o Azure.
+Se estiver a executar a aplicação num ambiente controlado, a autenticação baseada no ambiente é uma opção natural. Com este método de autenticação, é possível configurar o ambiente da shell antes de executar a aplicação. Em runtime, o SDK para Go lê estas variáveis de ambiente de modo a efetuar a autenticação no Azure.
 
-Autenticação baseada no ambiente suporta todos os métodos de autenticação, exceto os tokens de dispositivo, avaliados pela seguinte ordem: credenciais de cliente, certificados, nome de utilizador/palavra-passe e Identidade de Serviço Gerida (MSI). Se uma variável de ambiente necessária não estiver definida ou o SDK obtiver uma recusa do serviço de autenticação, é utilizado o tipo de autenticação seguinte. Se o SDK não conseguir efetuar a autenticação a partir do ambiente, devolve um erro.
+A autenticação baseada no ambiente suporta todos os métodos de autenticação exceto tokens de dispositivo, avaliados pela seguinte ordem:
+
+* Credenciais de cliente
+* Certificados X509
+* Nome de utilizador/palavra-passe
+* Identidade de Serviço Gerida (MSI)
+
+Se um determinado tipo de autenticação tiver valores não definidos ou for recusado, o SDK tenta automaticamente o tipo de autenticação seguinte. Quando já não houver mais tipos disponíveis para experimentar, o SDK devolve um erro.
 
 A tabela seguinte fornece detalhes sobre as variáveis de ambiente que têm de ser definidas para cada tipo de autenticação suportado pela autenticação baseada no ambiente.
 
@@ -73,14 +84,14 @@ A tabela seguinte fornece detalhes sobre as variáveis de ambiente que têm de s
 | | `AZURE_CLIENT_ID` | O ID do cliente de aplicação. |
 | | `AZURE_USERNAME` | O nome de utilizador para início de sessão. |
 | | `AZURE_PASSWORD` | A palavra-passe para início de sessão. |
-| __MSI__ | | A MSI não necessita de quaisquer credenciais para ser definida. A aplicação tem de estar em execução num recurso do Azure configurado para utilizar MSI. Para obter mais detalhes, consulte [Identidade de Serviço Gerida (MSI) para recursos do Azure]. |
+| __MSI__ | | Não são necessárias credenciais para a autenticação de MSI. A aplicação tem de estar em execução num recurso do Azure configurado para utilizar MSI. Para obter mais detalhes, consulte [Identidade de Serviço Gerida (MSI) para recursos do Azure]. |
 
-Se precisar de ligar a um ponto final de cloud ou de gestão diferente da cloud pública predefinida do Azure, também pode definir as variáveis de ambiente indicadas a seguir. Os motivos mais comuns para defini-las são a utilização do Azure Stack, de uma cloud numa região geográfica diferente ou do modelo de implementação Clássico do Azure.
+Para ligar a uma cloud ou a um ponto final de gestão sem ser a cloud pública predefinida do Azure, defina as variáveis de ambiente indicadas a seguir. As razões mais comuns são a utilização do Azure Stack, de uma cloud numa região geográfica diferente ou do modelo de implementação clássico.
 
 | Variável de ambiente | Descrição  |
 |----------------------|--------------|
 | `AZURE_ENVIRONMENT` | O nome do ambiente de cloud para ligação. |
-| `AZURE_AD_RESOURCE` | O ID de recurso de Active Directory a utilizar na ligação. Deve ser um URI que aponta para o ponto final de gestão. |
+| `AZURE_AD_RESOURCE` | O ID de recurso do Active Directory a utilizar ao estabelecer ligação, como um URI para o ponto final de gestão. |
 
 Quando utilizar a autenticação baseada no ambiente, chame a função [NewAuthorizerFromEnvironment](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#NewAuthorizerFromEnvironment) para obter o objeto authorizer. Este objeto é então definido na propriedade `Authorizer` dos clientes para permitir o acesso ao Azure.
 
@@ -100,18 +111,18 @@ Para autenticar no Azure Stack, tem de definir as seguintes variáveis:
 
 Estas variáveis podem ser obtidas a partir das informações de metadados do Azure Stack. Para obter os metadados, abra um browser web no seu ambiente do Azure Stack e utilize o url: `(ResourceManagerURL)/metadata/endpoints?api-version=1.0`
 
-O `ResourceManagerURL` varia com base no nome de região, nome da máquina e nome de domínio completamente qualificado externo (FQDN) da sua implementação do Azure Stack:
+O `ResourceManagerURL` varia consoante o nome da região, o nome da máquina e o nome do domínio completamente qualificado (FQDN) externo da sua implementação do Azure Stack:
 
 | Ambiente | ResourceManagerURL |
 |----------------------|--------------|
 | Kit de Desenvolvimento | `https://management.local.azurestack.external/` |
 | Sistemas Integrados | `https://management.(region).ext-(machine-name).(FQDN)` |
 
-Para obter mais detalhes sobre como utilizar o SDK for Go no Azure Stack, consulte [Utilizar perfis de versão de API com o Go no Azure Stack](https://docs.microsoft.com/azure/azure-stack/user/azure-stack-version-profiles-go)
+Para obter mais informações sobre como utilizar o SDK do Azure para Go no Azure Stack, veja [Utilizar perfis de versão de API com o Go no Azure Stack](https://docs.microsoft.com/azure/azure-stack/user/azure-stack-version-profiles-go)
 
 ## <a name="use-file-based-authentication"></a>Utilizar a autenticação baseada em ficheiro
 
-A Autenticação baseada em ficheiro só funciona com credenciais de cliente armazenadas num formato de ficheiro local gerado pela [CLI do Azure](/cli/azure). Pode criar facilmente este ficheiro quando criar um novo principal de serviço com o parâmetro `--sdk-auth`. Se pretender utilizar a autenticação baseada em ficheiro, certifique-se de que este argumento é fornecido ao criar um principal de serviço. Uma vez que a CLI imprime a saída de dados `stdout`, redirecione-a para um ficheiro.
+A autenticação baseada em ficheiros utiliza um formato de ficheiro gerado pela [CLI do Azure](/cli/azure). Pode criar facilmente este ficheiro quando criar um novo principal de serviço com o parâmetro `--sdk-auth`. Se pretender utilizar a autenticação baseada em ficheiro, certifique-se de que este argumento é fornecido ao criar um principal de serviço. Uma vez que a CLI imprime a saída de dados `stdout`, redirecione-a para um ficheiro.
 
 ```azurecli
 az ad sp create-for-rbac --sdk-auth > azure.auth
@@ -130,7 +141,7 @@ Para saber mais sobre a utilização de principais de serviço e a gestão das p
 
 ## <a name="use-device-token-authentication"></a>Utilizar a autenticação de token de dispositivo
 
-Se pretender que os utilizadores iniciem sessão interativamente, a melhor forma para oferecer essa funcionalidade é através da autenticação de token de dispositivo. Este fluxo de autenticação disponibiliza um token ao utilizador para ser colado num site de início de sessão da Microsoft, onde podem autenticar com uma conta do Azure Active Directory (AAD). Este método de autenticação suporta contas com a autenticação multifator ativada, ao contrário da autenticação de nome de utilizador/palavra-passe padrão.
+Se pretender que os utilizadores iniciem sessão de forma interativa, a melhor maneira de o fazer é através da autenticação de token de dispositivo. Este fluxo de autenticação disponibiliza um token ao utilizador para ser colado num site de início de sessão da Microsoft, onde podem autenticar com uma conta do Azure Active Directory (AAD). Este método de autenticação suporta contas com a autenticação multifator ativada, ao contrário da autenticação de nome de utilizador/palavra-passe padrão.
 
 Para utilizar a autenticação de token de dispositivo, crie um objeto authorizer [DeviceFlowConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#DeviceFlowConfig) com a função [NewDeviceFlowConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#NewDeviceFlowConfig). Chame [Authorizer](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#DeviceFlowConfig.Authorizer) no objeto resultante para iniciar o processo de autenticação. Os blocos de autenticação do fluxo do dispositivo programam a execução até todo o fluxo de autenticação ser concluído.
 
@@ -142,7 +153,11 @@ authorizer, err := deviceConfig.Authorizer()
 
 ## <a name="use-an-authentication-client"></a>Utilizar um cliente de autenticação
 
-Se necessitar de um tipo de autenticação específico e quiser que o seu programa execute o carregamento das informações de autenticação do utilizador, pode utilizar qualquer cliente que esteja em conformidade com a interface [auth.AuthorizerConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#AuthorizerConfig). Utilize um tipo que implemente esta interface quando pretender um programa interativo, utilizar ficheiros de configuração especializados ou tiver um requisito que o impede de utilizar outro método de autenticação.
+Se necessitar de um tipo de autenticação específico e quiser que o seu programa execute o carregamento das informações de autenticação do utilizador, pode utilizar qualquer cliente que esteja em conformidade com a interface [auth.AuthorizerConfig](https://godoc.org/github.com/Azure/go-autorest/autorest/azure/auth#AuthorizerConfig). Utilize um tipo que implemente esta interface quando:
+
+* Escrever um programa interativo
+* Utilizar ficheiros de configuração especializados
+* Tiver um requisito que o impede de utilizar um método de autenticação incorporado
 
 > [!WARNING]
 > Nunca utilize credenciais do Azure hard-coded numa aplicação. Colocar segredos no binário de uma aplicação torna mais fácil para um atacante extrai-las, quer a aplicação esteja a ser executada ou não. Tal coloca em risco todos os recursos do Azure para os quais as credenciais estão autorizadas!

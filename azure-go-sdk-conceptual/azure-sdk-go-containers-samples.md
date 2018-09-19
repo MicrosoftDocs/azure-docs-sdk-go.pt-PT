@@ -1,25 +1,24 @@
 ---
 title: Amostras do SDK do Azure para Go para contentores
-description: Amostras selecionadas para trabalhar com o ACI e o AKS a partir do SDK do Azure para Go.
+description: Amostras selecionadas para trabalhar com o Azure Container Instances e o Azure Kubernetes Service a partir do SDK do Azure para Go.
 author: sptramer
 ms.author: sttramer
 manager: carmonm
-ms.date: 03/21/2018
+ms.date: 09/05/2018
 ms.topic: sample
-ms.prod: azure
 ms.technology: azure-sdk-go
 ms.service: container-service
 ms.devlang: go
-ms.openlocfilehash: 6fad418ec59bfb44433842de2c32a40d2574640e
-ms.sourcegitcommit: 0f581979216f7c9d4913681a6d9f6fe09af26e43
+ms.openlocfilehash: cb57fd9dbb75cab1205e1cb56c45272fe9c8dba6
+ms.sourcegitcommit: 8b9e10b960150dc08f046ab840d6a5627410db29
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 08/02/2018
-ms.locfileid: "39475828"
+ms.lasthandoff: 09/07/2018
+ms.locfileid: "44059068"
 ---
 # <a name="azure-sdk-for-go-samples-for-containers"></a>Amostras do SDK do Azure para Go para contentores
 
-A seguinte tabela inclui ligações para amostras selecionadas de código fonte do Go que pode utilizar para trabalhar com contentores no Azure através do Azure Container Instances (ACI) ou do Serviço Kubernetes do Azure (AKS). 
+A tabela seguinte inclui ligações para amostras selecionadas que demonstram a gestão do Azure Container Instances (ACI) e do Azure Kubernetes Service (AKS) a partir do SDK do Azure para Go.
 
 Todas as amostras do SDK do Azure para Go estão disponíveis no [GitHub](https://github.com/Azure-Samples/azure-sdk-for-go-samples).
 

@@ -4,24 +4,26 @@ description: Implemente uma máquina virtual utilizando o SDK do Azure para Go.
 author: sptramer
 ms.author: sttramer
 manager: carmonm
-ms.date: 07/13/2018
+ms.date: 09/05/2018
 ms.topic: quickstart
-ms.prod: azure
 ms.technology: azure-sdk-go
 ms.service: virtual-machines
 ms.devlang: go
-ms.openlocfilehash: 6b1de35748fb7694d45715fa7f028d5730530d2e
-ms.sourcegitcommit: d1790b317a8fcb4d672c654dac2a925a976589d4
+ms.openlocfilehash: a7970be0857fd414d776241b033af0c23457790c
+ms.sourcegitcommit: 8b9e10b960150dc08f046ab840d6a5627410db29
 ms.translationtype: HT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 07/14/2018
-ms.locfileid: "39039561"
+ms.lasthandoff: 09/07/2018
+ms.locfileid: "44059140"
 ---
 # <a name="quickstart-deploy-an-azure-virtual-machine-from-a-template-with-the-azure-sdk-for-go"></a>Início rápido: implementar uma máquina virtual do Azure a partir de um modelo com o Azure SDK for Go
 
-Este guia de início rápido centra-se na implementação de recursos a partir de um modelo com o Azure SDK para Go. Os modelos são os instantâneos de todos os recursos contidos dentro de um [grupo de recursos do Azure](https://docs.microsoft.com/azure/azure-resource-manager/resource-group-overview). Ao longo do percurso, fica familiarizado com a funcionalidade e convenções do SDK ao executar uma tarefa útil.
+Este início rápido mostra-lhe como implementar recursos a partir de um modelo do Azure Resource Manager com o SDK do Azure para Go. Os modelos são instantâneos de todos os recursos contidos num [grupo de recursos do Azure](/azure/azure-resource-manager/resource-group-overview). Ao longo do percurso, irá familiarizar-se com a funcionalidade e as convenções do SDK.
 
 No final deste início rápido, tem uma VM em execução na qual inicia a sessão com um nome de utilizador e palavra-passe.
+
+> [!NOTE]
+> Para ver a criação de uma VM no Go que não envolva a utilização de um modelo do Resource Manager, existe um [exemplo indispensável](https://github.com/Azure-Samples/azure-sdk-for-go-samples/blob/master/compute/vm.go) que demonstra como criar e configurar todos os recursos da VM com o SDK. A utilização de um modelo neste exemplo permite centrar a atenção nas convenções do SDK sem entrar em grandes pormenores sobre a arquitetura do serviço do Azure.
 
 [!INCLUDE [quickstarts-free-trial-note](includes/quickstarts-free-trial-note.md)]
 
@@ -38,7 +40,7 @@ Se utilizar uma instalação local da CLI do Azure, este início rápido necessi
 Para iniciar sessão com uma aplicação de forma não interativa no Azure, precisa de um principal de serviço. Os principais de serviço fazem parte do controlo de acesso baseado em funções (RBAC) que cria uma identidade de utilizador exclusiva. Para criar um novo principal de serviço com a CLI, execute o seguinte comando:
 
 ```azurecli-interactive
-az ad sp create-for-rbac --name az-go-vm-quickstart --sdk-auth > quickstart.auth
+az ad sp create-for-rbac --sdk-auth > quickstart.auth
 ```
 
 Defina a variável de ambiente `AZURE_AUTH_LOCATION` para ser o caminho completo para este ficheiro. Em seguida, o SDK localiza e lê as credenciais diretamente a partir deste ficheiro, sem que tenha de fazer quaisquer alterações ou registar informações do principal de serviço.
@@ -62,13 +64,7 @@ cd $GOPATH/src/github.com/azure-samples/azure-sdk-for-go-samples/quickstarts/dep
 go run main.go
 ```
 
-Se existir uma falha na implementação, recebe uma mensagem a indicar que houve um problema, mas esta poderá não incluir detalhes suficientes. Com a CLI do Azure, obtenha os detalhes completos da falha de implementação com o seguinte comando:
-
-```azurecli-interactive
-az group deployment show -g GoVMQuickstart -n VMDeployQuickstart
-```
-
-Se a implementação for bem sucedida, vai ver uma mensagem com o nome de utilizador, endereço IP e a palavra-passe para registar na máquina virtual recém-criada. SSH a esta máquina para confirmar que está operacional e em funcionamento.
+Se a implementação for bem sucedida, vai ver uma mensagem com o nome de utilizador, endereço IP e a palavra-passe para registar na máquina virtual recém-criada. Execute o protocolo SSH nesta máquina para verificar se está operacional. 
 
 ## <a name="cleaning-up"></a>Limpeza
 
@@ -77,6 +73,18 @@ Limpe os recursos criados durante o início rápido ao eliminar o grupo de recur
 ```azurecli-interactive
 az group delete -n GoVMQuickstart
 ```
+
+Elimine também o principal de serviço criado. O ficheiro `quickstart.auth` contém uma chave JSON para `clientId`. Copie este valor para a variável de ambiente `CLIENT_ID_VALUE` e execute o seguinte comando da CLI do Azure:
+
+```azurecli-interactive
+az ad sp delete --id ${CLIENT_ID_VALUE}
+```
+
+Onde tem de fornecer o valor para `CLIENT_ID_VALUE` a partir de `quickstart.auth`.
+
+> [!WARNING]
+> Se não eliminar o principal de serviço desta aplicação, este permanecerá ativo no inquilino do Azure Active Directory.
+> Apesar de o nome e a palavra-passe do principal de serviço serem gerados como UUIDs, certifique-se de que cumpre as boas práticas de segurança ao eliminar os principais de serviço e as Aplicações do Azure Active Directory obsoletos.
 
 ## <a name="code-in-depth"></a>Programe em profundidade
 
@@ -111,7 +119,7 @@ var (
 
 Os valores são declarados, o que dá os nomes dos recursos criados. A localização também está especificada aqui, que pode alterar para ver como as implementações se comportam noutros datacenters. Nem todos os datacenters têm todos os recursos necessários disponíveis.
 
-O tipo `clientInfo` é declarado para encapsular todas as informações que têm de ser carregadas independentemente a partir do ficheiro de autenticação para configurar clientes no SDK e definir a palavra-passe da VM.
+O tipo `clientInfo` contém as informações carregadas a partir do ficheiro de autenticação para configurar os clientes no SDK e definir a palavra-passe da VM.
 
 As constantes `templateFile` e `parametersFile` apontam para os ficheiros necessários para a implementação. O valor `authorizer` será configurado pelo SDK do Go para autenticação e a variável `ctx` é um [Contexto do Go](https://blog.golang.org/context) para as operações de rede.
 
@@ -168,9 +176,9 @@ Os passos que o código executa são, por ordem:
 
 * Criar o grupo de recursos para o qual implementar (`createGroup`)
 * Criar a implementação dentro deste grupo (`createDeployment`)
-* Obter e exibir informações de início de sessão para a VM implementada (`getLogin`)
+* Obter e apresentar informações de início de sessão para a VM implementada (`getLogin`)
 
-### <a name="creating-the-resource-group"></a>Criar o grupo de recursos
+### <a name="create-the-resource-group"></a>Criar o grupo de recursos
 
 A função `createGroup` cria o grupo de recursos. Ao olhar para o fluxo e argumentos de chamada demonstra a forma como as interações de serviço estão estruturadas no SDK.
 
@@ -197,7 +205,7 @@ A função [`to.StringPtr`](https://godoc.org/github.com/Azure/go-autorest/autor
 
 O método `groupsClient.CreateOrUpdate` devolve um ponteiro para um tipo de dados que representa o grupo de recursos. Um valor de retorno direto deste tipo indica uma operação de curto-prazo que deverá ser síncrona. Na secção seguinte, verá um exemplo de uma operação de longa duração e como interagir com ela.
 
-### <a name="performing-the-deployment"></a>Realizar a implementação
+### <a name="perform-the-deployment"></a>Executar a implementação
 
 Uma vez criado o grupo de recursos, é o momento de executar a implementação. Este código é dividido em várias secções mais pequenas para dar ênfase a partes diferentes da sua lógica.
 
@@ -254,20 +262,13 @@ A grande diferença está no valor de retorno do método `deploymentsClient.Crea
     if err != nil {
         return
     }
-    deployment, err = deploymentFuture.Result(deploymentsClient)
-
-    // Work around possible bugs or late-stage failures
-    if deployment.Name == nil || err != nil {
-        deployment, _ = deploymentsClient.Get(ctx, resourceGroupName, deploymentName)
-    }
-    return
+    return deploymentFuture.Result(deploymentsClient)
+}
 ```
 
 Neste exemplo, o melhor a fazer é aguardar que a operação seja concluída. Aguardar por um futuro requer um [objeto de contexto](https://blog.golang.org/context) e o cliente que criou o `Future`. Existem duas possíveis origens do erro: um erro causado do lado do cliente ao tentar invocar o método, e uma resposta de erro do servidor. A última opção é devolvida como parte da chamada `deploymentFuture.Result`.
 
-Uma vez obtidas as informações de implementação, há uma solução para possíveis erros, em que as informações de implementação possam estar vazias, com uma chamada manual para `deploymentsClient.Get` para garantir que os dados são povoados.
-
-### <a name="obtaining-the-assigned-ip-address"></a>Obter o endereço IP atribuído
+### <a name="get-the-assigned-ip-address"></a>Obter o endereço IP atribuído
 
 Para fazer alguma coisa com a VM recém-criada, necessita do endereço IP atribuído. Os endereços IP são os seus próprios recursos do Azure, vinculados aos recursos do Controlador de Interface de Rede (NIC).
 
@@ -301,7 +302,7 @@ O valor para o utilizador da VM também é carregado a partir do JSON. A palavra
 
 ## <a name="next-steps"></a>Passos seguintes
 
-Neste início rápido, utilizou um modelo existente e implementou-o através do Go. Em seguida, ligou-se à VM recém-criada por SSH para garantir que está em execução.
+Neste início rápido, utilizou um modelo existente e implementou-o através do Go. Em seguida, ligou-se à VM recém-criada por SSH.
 
 Para saber mais sobre o trabalho com máquinas virtuais no ambiente do Azure com o Go, veja [Exemplos de computação no Azure para o Go](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/compute) ou [Exemplos de gestão de recursos do Azure para o Go](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/resources).
 
