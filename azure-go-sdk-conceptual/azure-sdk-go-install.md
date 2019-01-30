@@ -9,12 +9,12 @@ ms.topic: conceptual
 ms.prod: azure
 ms.technology: azure-sdk-go
 ms.devlang: go
-ms.openlocfilehash: 7990ec8bde5622078aa822fc7e66ba5c4384d682
-ms.sourcegitcommit: 3d26b464f196f8675c636ae792637d4c882fb92c
-ms.translationtype: HT
+ms.openlocfilehash: 2799e3a6c637036eeaf7b20adf8aa55a8a4ab400
+ms.sourcegitcommit: 4db332f5e43a5b43032ff9017805d5fd5a650d86
+ms.translationtype: MT
 ms.contentlocale: pt-PT
-ms.lasthandoff: 11/27/2018
-ms.locfileid: "52337148"
+ms.lasthandoff: 01/28/2019
+ms.locfileid: "55145537"
 ---
 # <a name="install-the-azure-sdk-for-go"></a>Instale o Azure SDK para Go
 
@@ -92,7 +92,7 @@ Se pretender começar a utilizar outros serviços no SDK Go imediatamente, veja 
 
 * [Autenticar com os serviços do Azure](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/internal/iam)
 * [Implementar novas máquinas virtuais com autenticação SSH](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/compute)
-* [Implementar uma imagem de contentor para o Azure Container Instances](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/containerinstance)
-* [Criar um cluster no Serviço Kubernetes do Azure](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/containerservice)
+* [Implementar uma imagem de contentor para o Azure Container Instances](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/compute)
+* [Criar um cluster no Serviço Kubernetes do Azure](https://github.com/Azure-Samples/azure-sdk-for-go-samples/blob/master/compute)
 * [Trabalhar com serviços de Armazenamento do Azure](https://github.com/Azure-Samples/azure-sdk-for-go-samples/tree/master/storage)
 * [Todos os exemplos do SDK do Azure para Go](https://github.com/azure-samples/azure-sdk-for-go-samples)
